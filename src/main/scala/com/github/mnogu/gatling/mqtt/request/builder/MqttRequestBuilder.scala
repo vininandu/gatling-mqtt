@@ -1,6 +1,6 @@
 package com.github.mnogu.gatling.mqtt.request.builder
 
-import com.github.mnogu.gatling.mqtt.action.MqttRequestActionBuilder
+import com.github.mnogu.gatling.mqtt.action.{MqttRequestConnectActionBuilder, MqttRequestPublishActionBuilder}
 import io.gatling.core.session.Expression
 import org.fusesource.mqtt.client.QoS
 
@@ -16,11 +16,13 @@ case class MqttRequestBuilder(requestName: Expression[String]) {
     topic: Expression[String],
     payload: Expression[String],
     qos: QoS,
-    retain: Boolean): MqttRequestActionBuilder =
-    new MqttRequestActionBuilder(MqttAttributes(
+    retain: Boolean): MqttRequestPublishActionBuilder =
+    new MqttRequestPublishActionBuilder(MqttAttributes(
       requestName,
       topic,
       payload,
       qos,
       retain))
+
+  def connect(): MqttRequestConnectActionBuilder = new MqttRequestConnectActionBuilder(requestName)
 }

@@ -4,9 +4,10 @@ import com.github.mnogu.gatling.mqtt.protocol.{MqttComponents, MqttProtocol}
 import com.github.mnogu.gatling.mqtt.request.builder.MqttAttributes
 import io.gatling.core.action.Action
 import io.gatling.core.action.builder.ActionBuilder
+import io.gatling.core.session._
 import io.gatling.core.structure.ScenarioContext
 
-class MqttRequestActionBuilder(mqttAttributes: MqttAttributes)
+class MqttRequestConnectActionBuilder(requestName : Expression[String])
   extends ActionBuilder {
 
   override def build(
@@ -16,8 +17,8 @@ class MqttRequestActionBuilder(mqttAttributes: MqttAttributes)
 
     val mqttComponents : MqttComponents = protocolComponentsRegistry.components(MqttProtocol.MqttProtocolKey)
     
-    new MqttRequestAction(
-      mqttAttributes,
+    new MqttRequestConnectAction(
+      requestName,
       coreComponents,
       mqttComponents.mqttProtocol,
       next
