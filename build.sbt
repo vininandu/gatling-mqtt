@@ -6,7 +6,7 @@ scalaVersion := "2.11.8"
 
 libraryDependencies ++= Seq(
   "io.gatling" % "gatling-core" % "2.2.3" % "provided",
-  "org.fusesource.mqtt-client" % "mqtt-client" % "1.10"
+  "org.fusesource.mqtt-client" % "mqtt-client" % "1.14"
 )
 
 // Gatling contains scala-library
