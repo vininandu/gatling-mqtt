@@ -21,7 +21,7 @@ class MqttRequestPublishAction(
 
   val statsEngine = coreComponents.statsEngine
 
-  override val name = genName("mqttRequest")
+  override val name = genName("mqttPublish")
 
   override def execute(session: Session): Unit = recover(session) {
     val connection = session.attributes.get("connection").get.asInstanceOf[CallbackConnection]

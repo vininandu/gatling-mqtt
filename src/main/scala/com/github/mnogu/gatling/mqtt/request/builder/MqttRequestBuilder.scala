@@ -1,6 +1,6 @@
 package com.github.mnogu.gatling.mqtt.request.builder
 
-import com.github.mnogu.gatling.mqtt.action.{MqttRequestConnectActionBuilder, MqttRequestPublishActionBuilder}
+import com.github.mnogu.gatling.mqtt.action.{MqttRequestConnectActionBuilder, MqttRequestDisconnectActionBuilder, MqttRequestPublishActionBuilder}
 import io.gatling.core.session.Expression
 import org.fusesource.mqtt.client.QoS
 
@@ -25,4 +25,5 @@ case class MqttRequestBuilder(requestName: Expression[String]) {
       retain))
 
   def connect(): MqttRequestConnectActionBuilder = new MqttRequestConnectActionBuilder(requestName)
+  def disconnect(): MqttRequestDisconnectActionBuilder = new MqttRequestDisconnectActionBuilder()
 }
