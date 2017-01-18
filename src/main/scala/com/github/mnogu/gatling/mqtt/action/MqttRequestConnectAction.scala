@@ -21,7 +21,7 @@ class MqttRequestConnectAction(
 
   val statsEngine = coreComponents.statsEngine
 
-  override val name = genName("mqttRequest")
+  override val name = genName("mqttConnect")
 
   private def configureHost(session: Session)(mqtt: MQTT): Validation[MQTT] = {
     mqttProtocol.host match {
