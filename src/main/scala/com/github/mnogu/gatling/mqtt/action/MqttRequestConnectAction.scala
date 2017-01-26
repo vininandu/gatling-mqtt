@@ -179,24 +179,9 @@ class MqttRequestConnectAction(
 
       connection.connect(new Callback[Void] {
         override def onSuccess(void: Void): Unit = {
-          val requestEndDate = nowMillis
-          requestName(session).flatMap { resolvedRequestName =>
-            statsEngine.logResponse(
-              session,
-              resolvedRequestName,
-              ResponseTimings(startTimestamp = requestStartDate, endTimestamp = requestEndDate),
-              OK,
-              None,
-              None
-            )
-
             next ! session.set("connection", connection)
-          }
         }
         override def onFailure(value: Throwable): Unit = {
-          requestName(session).flatMap { resolvedRequestName =>
-            statsEngine.reportUnbuildableRequest(session, requestName.toString(), value.getMessage)
-          }
           connection.disconnect(null)
         }
 
