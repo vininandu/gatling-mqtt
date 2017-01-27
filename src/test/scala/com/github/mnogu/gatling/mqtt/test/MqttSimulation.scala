@@ -1,20 +1,31 @@
 package com.github.mnogu.gatling.mqtt.test
 
+import com.github.mnogu.gatling.mqtt.Predef._
 import io.gatling.core.Predef._
 import org.fusesource.mqtt.client.QoS
-import scala.concurrent.duration._
 
-import com.github.mnogu.gatling.mqtt.Predef._
+import scala.concurrent.duration._
 
 class MqttSimulation extends Simulation {
   val mqttConf = mqtt.host("tcp://localhost:1883")
 
+  val connect = exec(mqtt("connect")
+    .connect())
+
+  val publish = repeat(100) {
+    exec(mqtt("publish")
+      .publish("foo", "Hello", QoS.AT_LEAST_ONCE, retain = false))
+      .pause(1000 milliseconds)
+  }
+
+  val disconnect = exec(mqtt("disconnect")
+    .disconnect())
+
   val scn = scenario("MQTT Test")
-    .exec(mqtt("request")
-    .publish("foo", "Hello", QoS.AT_LEAST_ONCE, retain = false))
+    .exec(connect, publish, disconnect)
 
   setUp(
     scn
-      .inject(constantUsersPerSec(10) during(90 seconds)))
-    .protocols(mqttConf)
+      .inject(rampUsers(10) over (1 seconds))
+  ).protocols(mqttConf)
 }
