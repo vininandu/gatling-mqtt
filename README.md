@@ -1,12 +1,18 @@
 # Gatling-MQTT
 
-This is improved version of an unofficial [Gatling](http://gatling.io/) stress test plugin
+This is an extension version of an unofficial [Gatling](http://gatling.io/) stress test plugin
 for [MQTT](http://mqtt.org/).
-Plugin improved to be able to provide next flow:
+
+Plugin improved to be able to provide next scenario:
+
 connect -> publish -> publish -> publish -> ... -> publish -> publish -> disconnect
 
-The origin plugin has next flow:
+The origin plugin has the only possible scenario option:
+
 connect -> publish -> disconnect -> connect -> publish -> disconnect -> ... -> connect -> publish -> disconnect
+
+Additionally this extended version doesn't take into account connect and disconnect actions while performance report generation.
+
 
 ## Usage
 
