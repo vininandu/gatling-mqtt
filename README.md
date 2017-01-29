@@ -1,13 +1,18 @@
 # Gatling-MQTT
 
-An unofficial [Gatling](http://gatling.io/) stress test plugin
+This is improved version of an unofficial [Gatling](http://gatling.io/) stress test plugin
 for [MQTT](http://mqtt.org/).
+Plugin improved to be able to provide next flow:
+connect -> publish -> publish -> publish -> ... -> publish -> publish -> disconnect
+
+The origin plugin has next flow:
+connect -> publish -> disconnect -> connect -> publish -> disconnect -> ... -> connect -> publish -> disconnect
 
 ## Usage
 
 ### Cloning this repository
 
-    $ git clone https://github.com/mnogu/gatling-mqtt.git
+    $ git clone https://github.com/thingsboard/gatling-mqtt.git
     $ cd gatling-mqtt
 
 ### Creating a jar file
@@ -89,22 +94,37 @@ import scala.concurrent.duration._
 import com.github.mnogu.gatling.mqtt.Predef._
 
 class MqttSimulation extends Simulation {
+
   val mqttConf = mqtt
-    // MQTT broker
+     // MQTT broker
     .host("tcp://localhost:1883")
 
-  val scn = scenario("MQTT Test")
-    .exec(mqtt("request")
-      // topic: "foo"
-      // payload: "Hello"
-      // QoS: AT_LEAST_ONCE
-      // retain: false
+  val connect = exec(mqtt("connect")
+    .connect())
+
+   // send 100 publish MQTT messages
+  val publish = repeat(100) {
+    exec(mqtt("publish")
+       // topic: "foo"
+       // payload: "Hello"
+       // QoS: AT_LEAST_ONCE
+       // retain: false
       .publish("foo", "Hello", QoS.AT_LEAST_ONCE, retain = false))
+       // 1 seconds pause between sending messages
+      .pause(1000 milliseconds)
+    }
+
+  val disconnect = exec(mqtt("disconnect")
+    .disconnect())
+
+  val scn = scenario("MQTT Test")
+    .exec(connect, publish, disconnect)
 
   setUp(
     scn
-      .inject(constantUsersPerSec(10) during(90 seconds)))
-    .protocols(mqttConf)
+       // linearly connect 10 devices over 1 seconds and send 100 publish messages
+      .inject(rampUsers(10) over (1 seconds))
+  ).protocols(mqttConf)
 }
 ```
 
@@ -123,32 +143,48 @@ import scala.concurrent.duration._
 import com.github.mnogu.gatling.mqtt.Predef._
 
 class MqttSimulation extends Simulation {
+
   val mqttConf = mqtt
+      // MQTT broker
     .host("tcp://localhost:1883")
-    // clientId: the values of "client" column in mqtt.csv
-    //
-    // See below for mqtt.csv.
-    .clientId("${client}")
+      // clientId: the values of "client" column in mqtt.csv
+      //
+      // See below for mqtt.csv.
+     .clientId("${client}")
+
+  val connect = exec(mqtt("connect")
+    .connect())
+
+   // send 100 publish MQTT messages
+  val publish = repeat(100) {
+    exec(mqtt("publish")
+       // topic: "foo"
+       // payload: "Hello"
+       // QoS: AT_LEAST_ONCE
+       // retain: false
+      .publish("foo", "Hello", QoS.AT_LEAST_ONCE, retain = false))
+       // 1 seconds pause between sending messages
+      .pause(1000 milliseconds)
+    }
+
+  val disconnect = exec(mqtt("disconnect")
+    .disconnect())
 
   val scn = scenario("MQTT Test")
-    // The content of mqtt.csv would be like this:
-    //
-    //   client,topic,payload
-    //   clientId1,topic1,payload1
-    //   clientId2,topic2,payload2
-    //   ...
+     // The content of mqtt.csv would be like this:
+     //
+     //   client,topic,payload
+     //   clientId1,topic1,payload1
+     //   clientId2,topic2,payload2
+     //   ...
     .feed(csv("mqtt.csv").circular)
-    .exec(mqtt("request")
-      // topic: the values of "topic" column in mqtt.csv
-      // payload: the values of "payload" column in mqtt.csv
-      // QoS: AT_LEAST_ONCE
-      // retain: false
-      .publish("${topic}", "${payload}", QoS.AT_LEAST_ONCE, retain = false))
+    .exec(connect, publish, disconnect)
 
   setUp(
     scn
-      .inject(constantUsersPerSec(10) during(90 seconds)))
-    .protocols(mqttConf)
+       // linearly connect 10 devices over 1 seconds and send 100 publish messages
+      .inject(rampUsers(10) over (1 seconds))
+  ).protocols(mqttConf)
 }
 ```
 
